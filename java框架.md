@@ -38,7 +38,7 @@
 
 
 
-```
+```java
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
     // 单例、原型标识符
@@ -113,7 +113,7 @@ BeanFactory 是 Sping 框架的基础接口，一般是面向 Spring 本身；�
 
 ![453024611-5c107e4e8e375](https://raw.githubusercontent.com/a1254898873/images/master/202203241050504.png)
 
-```
+```java
 public interface BeanFactory {
 
     // 对 FactoryBean 的转义定义，因为如果使用 bean 的名字检索 FactoryBean 得到的对象是工厂生成的对象，
@@ -158,7 +158,7 @@ public interface BeanFactory {
 
 
 
-```
+```java
 public interface ApplicationContext extends EnvironmentCapable, ListableBeanFactory, HierarchicalBeanFactory,
         MessageSource, ApplicationEventPublisher, ResourcePatternResolver {
 
@@ -188,7 +188,7 @@ public interface ApplicationContext extends EnvironmentCapable, ListableBeanFact
 
 ### refresh
 
-```
+```java
 public void refresh() throws BeansException, IllegalStateException {
         synchronized (this.startupShutdownMonitor) {
             //刷新前的预处理;
@@ -239,7 +239,7 @@ public void refresh() throws BeansException, IllegalStateException {
 
 BeanFactory 实现类是 DefaultListableBeanFactory，是一个具有注册功能的完整 Bean 工厂，注册 Bean 的方法是registerBeanDefinition，DefaultListableBeanFactory 通过实现 BeanDefinitionRegistry 接口，重写该方法,它定义了关于 BeanDefinition 的注册、移除、查询等一系列的操作。
 
-```
+```java
 public interface BeanDefinitionRegistry extends AliasRegistry {
 
     // 注册 BeanDefinition
@@ -301,7 +301,7 @@ Spring中提供一些Aware相关接口，像是BeanNameAware、ApplicationContex
 
 BeanPostProcessor 接口是 Spring 提供的众多接口之一，他的作用主要是如果我们需要在Spring 容器完成 Bean 的实例化、配置和其他的初始化前后添加一些自己的逻辑处理，我们就可以定义一个或者多个 BeanPostProcessor 接口的实现，然后注册到容器中。
 
-```
+```java
 public interface BeanPostProcessor {
     @Nullable
     default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -321,7 +321,7 @@ public interface BeanPostProcessor {
 
 自定义类来实现 BeanPostProcessor 接口
 
-```
+```java
 public class MyBeanPostProcessor implements BeanPostProcessor {
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -417,13 +417,13 @@ Spring事务管理是基于接口代理（JDK）或动态字节码（CGLIB）技
 
 动态代理可以在运行期间创建某个接口
 
-```
+```java
 public interface Hello {
     void morning(String name);
 }
 ```
 
-```
+```java
 public class Main {
     public static void main(String[] args) {
         InvocationHandler handler = new InvocationHandler() {
@@ -474,11 +474,11 @@ interface Hello {
 
 切入点表达式的语法格式规范是：
 
-```
+```java
 execution([权限修饰符] [返回值类型] [简单类名/全类名] [方法名] ([参数列表]))
 ```
 
-```
+```java
 表达式：
 
 execution(* com.atguigu.spring.ArithmeticCalculator.*(…))
@@ -488,7 +488,7 @@ execution(* com.atguigu.spring.ArithmeticCalculator.*(…))
 ArithmeticCalculator接口中声明的所有方法。第一个“”代表任意修饰符及任意返回值。第二个“”代表任意方法。“…”匹配任意数量、任意类型的参数。若目标类、接口与该切面类在同一个包中可以省略包名。
 ```
 
-```
+```java
 表达式：
 
 execution(public * ArithmeticCalculator.*(…))
@@ -498,7 +498,7 @@ execution(public * ArithmeticCalculator.*(…))
 ArithmeticCalculator接口的所有公有方法
 ```
 
-```
+```java
 表达式：
 
 execution(public double ArithmeticCalculator.*(…))
@@ -508,7 +508,7 @@ execution(public double ArithmeticCalculator.*(…))
 ArithmeticCalculator接口中返回double类型数值的方法
 ```
 
-```
+```java
 表达式：
 
 execution(public double ArithmeticCalculator.*(double, …))
@@ -518,7 +518,7 @@ execution(public double ArithmeticCalculator.*(double, …))
 第一个参数为double类型的方法。“…” 匹配任意数量、任意类型的参数。
 ```
 
-```
+```java
 表达式：
 
 execution(public double ArithmeticCalculator.*(double, double))
@@ -528,7 +528,7 @@ execution(public double ArithmeticCalculator.*(double, double))
 参数类型为double，double类型的方法
 ```
 
-```
+```java
 @Aspect	//切面注解
 @Component	//其他业务层
 public class LogUtli {
@@ -551,7 +551,7 @@ public class LogUtli {
 
 重用切入点表达式
 
-```
+```java
 @Aspect	//切面注解
 @Component	//其他业务层
 public class LogUtli {
@@ -636,7 +636,7 @@ public class LogUtli {
 
 1、使用@Target、@Retention、@Documented 自定义一个注解
 
-```
+```java
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -646,7 +646,7 @@ public @interface PermissionAnnotation{
 
 2、创建第一个AOP切面类
 
-```
+```java
 @Aspect
 @Component
 @Order(1)
@@ -679,7 +679,7 @@ public class PermissionFirstAdvice {
 
 3、使用
 
-```
+```java
 @RestController
 @RequestMapping(value = "/permission")
 public class TestController {
@@ -694,7 +694,7 @@ public class TestController {
 
 二、jointpoint的使用
 
-```
+```java
 
 @Aspect
 @Component
@@ -727,7 +727,7 @@ public class PermissionSecondAdvice {
 
 三、在自定义的注解中设置参数
 
-```
+```java
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @Documented
@@ -739,7 +739,7 @@ public @interface LogAnnotation {
 }
 ```
 
-```
+```java
 @LogAnnotation(moudleName = "用户管理模块", option = "添加用户")
     @Override
     public void addUser() {
@@ -748,7 +748,7 @@ public @interface LogAnnotation {
     }
 ```
 
-```
+```java
 @Aspect
 @Component
 public class LogInterceptor {
@@ -838,7 +838,7 @@ YML配置文件默认的格式都是UTF-8编码 所以可以直接编辑中文
 - destory 方法：在容器中销毁当前过滤器的时候自动调用
 - doFilter 方法：过滤的具体操作
 
-```
+```java
 @Log4j2
 public class MyFilter implements Filter {
 
@@ -881,7 +881,7 @@ public class MyFilter implements Filter {
 - postHandler：在 Controoler 处理请求执行完成后、生成视图前执行，可以通过ModelAndView对视图进行处理，当然ModelAndView也可以设置为 null。
 - afterCompletion：在 DispatcherServlet 完全处理请求后被调用，通常用于记录消耗时间，也可以对一些资源进行处理。
 
-```
+```java
 @Log4j2
 @Component
 public class MyInterceptor implements HandlerInterceptor {
@@ -925,7 +925,7 @@ session，一个用户一个；而servletContext，所有用户共用一个。�
 
 因此我们这里用ServletContext来存储在线人数sessionCount最为合适。
 
-```
+```java
 @Log4j2
 public class MyHttpSessionListener implements HttpSessionListener {
 
@@ -954,7 +954,7 @@ public class MyHttpSessionListener implements HttpSessionListener {
 
 ### 注册
 
-```
+```java
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     @Autowired
@@ -1027,7 +1027,7 @@ springboot支持多数据源配置，spring-jdbc下的AbstractRoutingDataSource.
 
 
 
-```
+```java
 spring:
   datasource:
     dynamic:
@@ -1054,7 +1054,7 @@ spring:
 
 ```
 
-```
+```java
 @Service
 @DS("slave")
 public class UserServiceImpl implements UserService {
@@ -1141,7 +1141,7 @@ DO 与 PO 的区别
 
 一、配置
 
-```
+```java
 <dependency>
     <groupId>org.mapstruct</groupId>
     <artifactId>mapstruct</artifactId>
@@ -1156,7 +1156,7 @@ DO 与 PO 的区别
 
 这意味着，它的代码，在编译期就完成了。不需要反射，所以效率就和直接写get、set，是一样的。
 
-```
+```java
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-compiler-plugin</artifactId>
@@ -1186,7 +1186,7 @@ DO 与 PO 的区别
 
 ```
 
-```
+```java
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface Transform {
     Transform T = Mappers.getMapper(Transform.class);
@@ -1200,7 +1200,7 @@ public interface Transform {
 
 
 
-```
+```java
 // 实体类
 @Data
 @NoArgsConstructor
@@ -1241,7 +1241,7 @@ public class UserVO2 {
 
 
 
-```
+```java
 @Mapper(componentModel = "spring")
 public interface UserCovertBasic {
     //UserCovertBasic INSTANCE = Mappers.getMapper(UserCovertBasic.class);
@@ -1266,13 +1266,13 @@ public interface UserCovertBasic {
 
 字段名称不同可以使用
 
-```
+```java
 @Mapping(source = "xx", target = "xx")
 ```
 
 
 
-```
+```java
 @RestController
 public class TestController {
 
@@ -1313,7 +1313,7 @@ public class TestController {
 
 在Spring Boot中，我们只需要通过使用@Async注解就能简单的将原来的同步函数变为异步函数
 
-```
+```java
 @Slf4j
 @Component
 public class AsyncTasks {
@@ -1352,7 +1352,7 @@ public class AsyncTasks {
 
 为了让@Async注解能够生效，还需要在Spring Boot的主程序中配置@EnableAsync，如下所示：
 
-```
+```java
 @EnableAsync
 @SpringBootApplication
 public class Chapter75Application {
@@ -1376,7 +1376,7 @@ public class Chapter75Application {
 
 ### 线程池配置
 
-```
+```java
 @Configuration
 @EnableAsync
 public class AsyncConfiguration {
@@ -1404,7 +1404,7 @@ public class AsyncConfiguration {
 
 ```
 
-```
+```java
 @RestController
 public class AsyncController {
 
@@ -1448,7 +1448,7 @@ public class AsyncService {
 CompletableFuture是对Feature的增强，Feature只能处理简单的异步任务，而CompletableFuture可以将多个异步任务进行复杂的组合。如下：
 
 
-```
+```java
 @RestController
 public class AsyncController {
 
@@ -1504,7 +1504,7 @@ public class AsyncService {
 
 ## 单元测试
 
-```
+```java
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -1534,7 +1534,7 @@ public class LearnServiceTest {
 
 枚举类中不能存在set方法
 
-```
+```java
 
  
 public enum Color {
@@ -1564,7 +1564,7 @@ public enum Color {
 
 ```
 
-```
+```java
 public class B {
  
     public static void main(String[] args) {
@@ -1586,7 +1586,7 @@ public class B {
 
 #### 码值转换
 
-```
+```java
 public enum PayEnum implements BaseEnum{
     WAITING_PAY("1","0","待支付","unionpay","银联"),
     SUCCESS_PAY("2","1","支付成功","unionpay","银联"),
@@ -1652,7 +1652,7 @@ public enum PayEnum implements BaseEnum{
 
 
 
-```
+```java
 public static void main(String[] args) {
     String key = "1";
     String channel = "unionpay";
@@ -1703,7 +1703,7 @@ public static void main(String[] args) {
 
 定义对应字段的实体
 
-```
+```java
 @Data
 // 指定前缀
 @ConfigurationProperties(prefix = "developer")
@@ -1718,7 +1718,7 @@ public class DeveloperProperty {
 
 使用时注入这个bean
 
-```
+```java
 @RestController
 @RequiredArgsConstructor
 public class PropertyController {
@@ -1823,7 +1823,7 @@ Handler执行完成后，向DispatcherServlet 返回一个ModelAndView对象；�
 
 DispatcherSevlet中最重要的是doService方法：
 
-```
+```java
     //获取请求，设置一些request的参数，然后分发给doDispatch
 	@Override
 	protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -1883,7 +1883,7 @@ DispatcherSevlet中最重要的是doService方法：
 
  doService方法对Request设置了一些全局属性，最终接下来的操作是在doDispatcher：
 
-```
+```java
      /**
 	 *将Handler进行分发，handler会被handlerMapping有序的获得
 	 *通过查询servlet安装的HandlerAdapters来获得HandlerAdapters来查找第一个支持handler的类
@@ -1983,7 +1983,7 @@ DispatcherSevlet中最重要的是doService方法：
 
 HandlerMapping 叫做处理器映射器，它的作用就是根据当前 request 找到对应的 Handler 和 Interceptor，然后封装成一个 HandlerExecutionChain 对象返回。
 
-```
+```java
 public interface HandlerMapping {
     String BEST_MATCHING_HANDLER_ATTRIBUTE = HandlerMapping.class.getName() + ".bestMatchingHandler";
     @Deprecated
@@ -2018,7 +2018,7 @@ public interface HandlerMapping {
 
 ModelAndView指模型和视图的集合，既包含模型又包含视图；ModelAndView一般可以作为Controller的返回值，所以它的实例是开发者自己手动创建的。
 
-```
+```java
 public class ModelAndView {
 	@Nullable
 	private Object view; // 可以是View，也可以是String
@@ -2090,7 +2090,7 @@ public class ModelAndView {
 
 ModelAndViewContainer中其实就是一个ModelMap，一系列的操作都是基于ModelMap的。
 
-```
+```java
 public class ModelAndViewContainer {
  
 	private boolean ignoreDefaultModelOnRedirect = false;
@@ -2231,7 +2231,7 @@ public class ModelAndViewContainer {
 
 ModelMap是一个HashMap，主要用于数据的存取。
 
-```
+```java
 @SuppressWarnings("serial")
 public class ModelMap extends LinkedHashMap<String, Object> {
  
@@ -2305,7 +2305,7 @@ public class ModelMap extends LinkedHashMap<String, Object> {
 MultipartResolver 用于处理文件上传，当收到请求时 DispatcherServlet#checkMultipart() 方法会调用 MultipartResolver#isMultipart() 方法判断请求中是否包含文件。如果请求数据中包含文件，则调用 MultipartResolver#resolveMultipart() 方法对请求的数据进行解析。
 然后将文件数据解析成 MultipartFile 并封装在 MultipartHttpServletRequest(继承了 HttpServletRequest) 对象中，最后传递给 Controller
 
-```
+```java
 public interface MultipartResolver {
     //判断request是否为文件上传请求
     boolean isMultipart(HttpServletRequest request);
@@ -2323,7 +2323,7 @@ public interface MultipartResolver {
 
 ViewResolver的主要作用是把一个逻辑上的视图名称解析为一个真正的视图
 
-```
+```java
 public interface ViewResolver {
     @Nullable
     View resolveViewName(String viewName, Locale locale) throws Exception;
@@ -2340,7 +2340,7 @@ public interface ViewResolver {
 
 #### 1、configurePathMatch：匹配路由请求规则
 
-```
+```java
 @Override
 public void configurePathMatch(PathMatchConfigurer configurer) {
     super.configurePathMatch(configurer);
@@ -2361,7 +2361,7 @@ public void configurePathMatch(PathMatchConfigurer configurer) {
 
 #### 2、addFormatters：注册自定义的Formatter和Convert
 
-```
+```java
 @Bean
 public EnumConverterFactory enumConverterFactory() {
     return new EnumConverterFactory();
@@ -2419,7 +2419,7 @@ public class EnumConverterFactory implements ConverterFactory<String, Enum> {
 
 需求：想要在Controller的参数列表中注入当前回话的自定义PlatformSession对象。
 
-```
+```java
 @Getter
 @Setter
 public class PlatformSession<T> {
@@ -2433,7 +2433,7 @@ public class PlatformSession<T> {
 
 自定义参数处理器
 
-```
+```java
 public class PlatformSessionArgumentResolvers implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
@@ -2450,7 +2450,7 @@ public class PlatformSessionArgumentResolvers implements HandlerMethodArgumentRe
 
 配置类
 
-```
+```java
 @Bean
 PlatformSessionArgumentResolvers platformSessionArgumentResolvers() {
     return new PlatformSessionArgumentResolvers();
@@ -2465,7 +2465,7 @@ public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentRes
 
 #### 4、addViewControllers：添加自定义视图控制器
 
-```
+```java
 @Override
 public void addViewControllers(ViewControllerRegistry registry) {
     super.addViewControllers(registry);
@@ -2480,7 +2480,7 @@ public void addViewControllers(ViewControllerRegistry registry) {
 
 #### 5、addResourceHandlers：添加静态资源处理器
 
-```
+```java
 @Override
 public void addResourceHandlers(ResourceHandlerRegistry registry) {
     super.addResourceHandlers(registry);
@@ -2491,7 +2491,7 @@ public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 6、addCorsMappings：实现跨域
 
-```
+```java
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
@@ -2516,7 +2516,7 @@ public class WebConfig implements WebMvcConfigurer {
 
 #### 6、addInterceptors：添加拦截器
 
-```
+```java
 @Override
 public void addInterceptors(InterceptorRegistry registry) {
 
@@ -2524,7 +2524,7 @@ public void addInterceptors(InterceptorRegistry registry) {
 
 ```
 
-```
+```java
 @Component
 public class RequestInterceptor implements HandlerInterceptor {
 
@@ -2547,7 +2547,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 
 权限表：
 
-```
+```sql
 DROP TABLE IF EXISTS `sys_permission`;
 CREATE TABLE `sys_permission` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2562,7 +2562,7 @@ CREATE TABLE `sys_permission` (
 ) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4;
 ```
 
-```
+```sql
 INSERT INTO `sys_permission` VALUES ('1', '0', '用户管理', 'fa-users', '', '1', '', '1');
 INSERT INTO `sys_permission` VALUES ('2', '1', '用户查询', 'fa-user', '/api/getPage?pageName=user/user-list', '1', '', '2');
 INSERT INTO `sys_permission` VALUES ('3', '2', '查询', '', '', '2', 'sys:user:query', '100');
@@ -2593,7 +2593,7 @@ INSERT INTO `sys_permission` VALUES ('25', '2', '修改', null, null, '2', 'sys:
 
 角色表：
 
-```
+```sql
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2606,7 +2606,7 @@ CREATE TABLE `sys_role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4;
 ```
 
-```
+```sql
 INSERT INTO `sys_role` VALUES ('1', 'ADMIN', '管理员', '2017-05-01 13:25:39', '2019-06-04 02:25:13');
 INSERT INTO `sys_role` VALUES ('2', 'USER', '普通用户', '2017-08-01 21:47:31', '2019-05-30 09:08:24');
 INSERT INTO `sys_role` VALUES ('3', 'TEACHER', '', '2019-03-27 02:10:23', '2019-05-23 07:48:01');
@@ -2617,7 +2617,7 @@ INSERT INTO `sys_role` VALUES ('4', 'test', 'test', '2019-04-29 02:16:48', '2019
 
 角色权限中间表：
 
-```
+```sql
 DROP TABLE IF EXISTS `sys_role_permission`;
 CREATE TABLE `sys_role_permission` (
   `roleId` int(11) NOT NULL,
@@ -2633,7 +2633,7 @@ CREATE TABLE `sys_role_permission` (
 
 用户表：
 
-```
+```sql
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2658,7 +2658,7 @@ CREATE TABLE `sys_user` (
 
 用户角色中间表：
 
-```
+```sql
 DROP TABLE IF EXISTS `sys_role_user`;
 CREATE TABLE `sys_role_user` (
   `userId` int(11) NOT NULL,
@@ -2678,7 +2678,7 @@ CREATE TABLE `sys_role_user` (
 
 查询所有权限信息
 
-```
+```java
     @Override
     public Results<JSONArray> listAllPermission() {
         logger.info(getClass().getName() + ".listAllPermission()");
@@ -2699,7 +2699,7 @@ CREATE TABLE `sys_role_user` (
 
 新增权限信息
 
-```
+```java
     @Override
     public Results<SysPermission> save(SysPermission sysPermission) {
         return (permissionDao.save(sysPermission) > 0) ? Results.success() : Results.failure();
@@ -2714,7 +2714,7 @@ CREATE TABLE `sys_role_user` (
 
 删除权限信息
 
-```
+```java
     @Override
     public Results delete(Integer id) {
         permissionDao.deleteById(id);
@@ -2734,7 +2734,7 @@ CREATE TABLE `sys_role_user` (
 
 根据用户权限生成菜单
 
-```
+```java
     @Override
     public Results<JSONArray> getMenu(Long userId) {
         //1.1、先查询出所有信息
@@ -2758,7 +2758,7 @@ type类型为1表示菜单
 
 保存角色信息
 
-```
+```java
     public Results<SysRole> save(RoleDto roleDto) {
         //2.1、先保存角色信息"
         roleDao.saveRole(roleDto);
@@ -2778,7 +2778,7 @@ type类型为1表示菜单
 
 更新角色信息
 
-```
+```java
     public Integer update(RoleDto roleDto) {
         List<Long> permissionIds = roleDto.getPermissionIds();
         permissionIds.remove(0L);
@@ -2800,7 +2800,7 @@ type类型为1表示菜单
 
 删除角色
 
-```
+```java
     public Results<SysRole> delete(Integer id) {
         List<SysRoleUser> datas = roleUserDao.listAllSysRoleUserByRoleId(id);
         if(datas.size() <= 0){
@@ -2822,7 +2822,7 @@ type类型为1表示菜单
 
 保存用户
 
-```
+```java
     public Results<SysUser> save(SysUser sysUser, Integer roleId) {
         if(roleId != null) {
             //保存到用户表
@@ -2843,7 +2843,7 @@ type类型为1表示菜单
 
 更新用户
 
-```
+```java
     public Results<SysUser> updateUser(SysUser sysUser, Integer roleId) {
         if (roleId != null){
             //1、先保存用户信息
@@ -2869,7 +2869,7 @@ type类型为1表示菜单
 
 删除用户
 
-```
+```java
     @Override
     public Integer deleteUser(Long id) {
         //1、删除角色
@@ -2913,7 +2913,7 @@ type类型为1表示菜单
 
 ## 配置
 
-```
+```java
 @Configuration	
 @EnableWebSecurity	
 public class SecurityConfig extends WebSecurityConfigurerAdapter {	
@@ -2959,7 +2959,7 @@ AuthenticationManager 的建造器，配置 AuthenticationManagerBuilder 会让S
 
 3、configure(HttpSecurity http)
 
-```
+```java
 http	
 .formLogin()	
 .loginPage("/login_page")	
@@ -2973,7 +2973,7 @@ http
 
 
 
-```
+```java
 http	
 .authorizeRequests()	
 .antMatchers("/test").hasRole("test")	
@@ -2985,7 +2985,7 @@ http
 
 
 
-```
+```java
 http	
 .logout()	
 .logoutUrl("/logout")	
@@ -2994,7 +2994,7 @@ http
 
 登出相关配置，这里配置了登出 url 和登出成功处理器:
 
-```
+```java
 http	
 .exceptionHandling()	
 .accessDeniedHandler(new MyAccessDeniedHandler());
@@ -3002,7 +3002,7 @@ http
 
 上面代码是配置鉴权失败的处理器。
 
-```
+```java
 http.addFilterAfter(new MyFittler(), LogoutFilter.class);	
 http.addFilterAt(getAuthenticationFilter(),UsernamePasswordAuthenticationFilter.class);
 ```
@@ -3076,7 +3076,7 @@ Authentication是一个接口，用来表示用户认证信息，在用户登录
 
 
 
-```
+```java
 public interface Authentication extends Principal, Serializable {
     
     // 该principal具有的权限。AuthorityUtils工具类提供了一些方便的方法。
@@ -3094,7 +3094,7 @@ public interface Authentication extends Principal, Serializable {
 }
 ```
 
-```
+```java
 // 设置
 SecurityContextHolder.getContext().setAuthentication(anAuthentication);
 // 获取
@@ -3112,7 +3112,7 @@ Authentication existingAuth = SecurityContextHolder.getContext()
 
 AuthenticationManager是用来实现身份认证的API接口，入参是Authentication，最常用的子类是ProviderManager
 
-```
+```java
 public interface AuthenticationManager {
 
   Authentication authenticate(Authentication authentication)
@@ -3156,7 +3156,7 @@ Spring Security中进行身份验证的是AuthenticationManager接口，Provider
 
 该接口只提供了一个方法：
 
-```
+```java
 UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 ```
 
@@ -3192,7 +3192,7 @@ Spring Security中，系统进行认证以后，获得了当前的Authorities，
 
 
 
-```
+```java
 public interface AccessDecisionVoter {
 	
 	// 赞成票
@@ -3239,7 +3239,7 @@ Spring Security中对安全访问规则的最终决断是基于投票结果然�
 
 
 
-```
+```java
 
  
  /**
@@ -3351,7 +3351,7 @@ Spring Security中对安全访问规则的最终决断是基于投票结果然�
 
 ```
 
-```
+```java
         @Override
          protected void configure(HttpSecurity http) throws Exception {
              http.csrf().disable()
@@ -3378,7 +3378,7 @@ Spring Security中对安全访问规则的最终决断是基于投票结果然�
 
 ## session管理
 
-```
+```java
             .and()
                 .sessionManagement() // 添加 Session管理器
                 .invalidSessionUrl("/session/invalid") // Session失效后跳转到这个链接
@@ -3389,7 +3389,7 @@ Spring Security中对安全访问规则的最终决断是基于投票结果然�
 
 maximumSessions配置了最大Session并发数量为1个，如果mrbird这个账户登录后，在另一个客户端也使用mrbird账户登录，那么第一个使用mrbird登录的账户将会失效，类似于一个先入先出队列。expiredSessionStrategy配置了Session在并发下失效后的处理策略，这里为我们自定义的策略MySessionExpiredStrategy。
 
-```
+```java
 @Component
 public class MySessionExpiredStrategy implements SessionInformationExpiredStrategy {
 
@@ -3406,7 +3406,7 @@ public class MySessionExpiredStrategy implements SessionInformationExpiredStrate
 
 获取在线登录用户数量的方法
 
-```
+```java
 	/**
      * 获取系统在线用户数量
      * @return
@@ -3423,7 +3423,7 @@ public class MySessionExpiredStrategy implements SessionInformationExpiredStrate
 
 移除登录用户的session
 
-```
+```java
 	private void removeSesion(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		// 手动让系统中的session失效 。
@@ -3444,7 +3444,7 @@ public class MySessionExpiredStrategy implements SessionInformationExpiredStrate
 
 1、加依赖
 
-```
+```java
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-cache</artifactId>
@@ -3456,7 +3456,7 @@ public class MySessionExpiredStrategy implements SessionInformationExpiredStrate
 
 在启动类加上@EnableCaching注解即可开启使用缓存
 
-```
+```java
 @SpringBootApplication
 @EnableCaching
 public class CachingApplication {
@@ -3472,7 +3472,7 @@ public class CachingApplication {
 
 在要缓存的方法上面添加@Cacheable注解，即可缓存这个方法的返回值。
 
-```
+```java
 @Override
 @Cacheable("books")
 public Book getByIsbn(String isbn) {
@@ -3519,7 +3519,7 @@ private void simulateSlowService() {
 
 
 
-```
+```java
 @Configuration
 @SuppressWarnings("all")
 @EnableCaching
@@ -3559,7 +3559,7 @@ public class RedisConfig {
 
 1、引入依赖
 
-```
+```java
 <dependency>
     <groupId>org.springframework.session</groupId>
     <artifactId>spring-session-data-redis</artifactId>
@@ -3568,7 +3568,7 @@ public class RedisConfig {
 
 2、配置
 
-```
+```java
 ## Session 存储方式
 spring.session.store-type=redis
 
@@ -3594,7 +3594,7 @@ spring.redis.port=6379
 
 ### 1、全注解
 
-```
+```java
 public interface UserMapper2 {
     @Select("select * from user")
     List<User> getAllUsers();
@@ -3624,7 +3624,7 @@ public interface UserMapper2 {
 
 UserMapper2创建好之后，还要配置mapper扫描，有两种方式，一种是直接在UserMapper2上面添加@Mapper注解，这种方式有一个弊端就是所有的Mapper都要手动添加，要是落下一个就会报错，还有一个一劳永逸的办法就是直接在启动类上添加Mapper扫描，如下：
 
-```
+```java
 @SpringBootApplication
 @MapperScan(basePackages = "org.sang.mybatis.mapper")
 public class MybatisApplication {
@@ -3636,7 +3636,7 @@ public class MybatisApplication {
 
 ### 2、xml
 
-```
+```java
 public interface UserMapper {
     List<User> getAllUser();
 
@@ -3650,7 +3650,7 @@ public interface UserMapper {
 
 
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -3677,7 +3677,7 @@ public interface UserMapper {
 
 放在这里的UserMapper.xml会被自动扫描到，但是有另外一个Maven带来的问题，就是java目录下的xml资源在项目打包时会被忽略掉，所以，如果UserMapper.xml放在包下，需要在pom.xml文件中再添加如下配置，避免打包时java目录下的XML文件被自动忽略掉：
 
-```
+```java
 <build>
     <resources>
         <resource>
@@ -3699,7 +3699,7 @@ public interface UserMapper {
 
 此时在application.properties中告诉mybatis去哪里扫描mapper：
 
-```
+```java
 mybatis.mapper-locations=classpath:mapper/*.xml
 ```
 
@@ -3713,7 +3713,7 @@ mybatis.mapper-locations=classpath:mapper/*.xml
 
 1、基本类型
 
-```
+```apl
     <!-- 
         指定 resultType 返回值类型时 String 类型的，
         string 在这里是一个别名，代表的是 java.lang.String 
@@ -3732,7 +3732,7 @@ mybatis.mapper-locations=classpath:mapper/*.xml
 
 如果列名和JavaBean不一致，但列名符合单词下划线分割，Java是驼峰命名法，则mapUnderscoreToCamelCase可设置为true
 
-```
+```apl
     <!-- 
         通过 resultType 指定查询的结果是 Employee 类型的数据  
         只需要指定 resultType 的类型，MyBatis 会自动将查询的结果映射成 JavaBean 中的属性
@@ -3746,12 +3746,12 @@ mybatis.mapper-locations=classpath:mapper/*.xml
 
 resultType=List中元素的类型
 
-```
+```java
     // 假如是全表查询数据，将查询的数据封装成 Employee 类型的集合
     List<Employee> getAllEmps();
 ```
 
-```
+```apl
     <!--
         注意这里的 resultType 返回值类型是集合内存储数据的类型，不是 'list'
     -->
@@ -3770,12 +3770,12 @@ resultType=List中元素的类型
 
 单条
 
-```
+```java
     //  根据 id 查询信息，并把结果信息封装成 Map 
     Map<String, Object> getEmpAsMapById(Integer id);
 ```
 
-```
+```apl
     <!-- 
         注意这里的 resultType 返回值类型是 'map'
      -->
@@ -3788,14 +3788,14 @@ resultType=List中元素的类型
 
 多条
 
-```
+```java
     // 查询所有员工的信息，把数据库中的 'id' 字段作为 key,对应的 value 封装成 Employee 对象
     // @MapKey 中的值表示用数据库中的哪个字段名作 key
     @MapKey("id")
     Map<Integer, Employee> getAllEmpsAsMap();
 ```
 
-```
+```apl
     <!--
         注意 resultType 返回值类型，不再是 'map'，而是 Map 的 value 对应的 JavaBean 类型
     -->
@@ -3812,7 +3812,7 @@ resultType=List中元素的类型
 
 1、字段映射
 
-```
+```apl
 <resultMap id="getUserByIdMap" type="User">
 	<result property="id" column="uid"></result>
 </resultMap>
@@ -3827,7 +3827,7 @@ select语句中加入resultMap="getUserByIdMap"。
 
 2、一对一关联查询（association）
 
-```
+```apl
 <select id="getUserById" resultType="User">
         SELECT
             u.id,
@@ -3849,7 +3849,7 @@ select语句中加入resultMap="getUserByIdMap"。
 
 
 
-```
+```xml
 <resultMap id="userMap" type="User">
 	<id property="id" column="id"></id>
 	<result property="username" column="username"></result>
@@ -3866,7 +3866,7 @@ select语句中加入resultMap="getUserByIdMap"。
 
 
 
-```
+```json
 {
     "id": "1001",
     "username": "后羿",
@@ -3884,7 +3884,7 @@ select语句中加入resultMap="getUserByIdMap"。
 
 3、一对多关联查询（collection）
 
-```
+```xml
 <resultMap id="userMap" type="User">
 	<id property="id" column="id"></id>
 	<result property="username" column="username"></result>
@@ -3901,7 +3901,7 @@ select语句中加入resultMap="getUserByIdMap"。
 
 
 
-```
+```json
 {
     "id": "1003",
     "username": "貂蝉",
@@ -3933,7 +3933,7 @@ select语句中加入resultMap="getUserByIdMap"。
 
 1、不需要写parameterType参数
 
-```
+```xml
 <select id="getXXXBeanList" resultType="XXBean">
 
 　　select t.* from tableName where id = #{0} and name = #{1}  
@@ -3947,12 +3947,12 @@ select语句中加入resultMap="getUserByIdMap"。
 
 2、注解
 
-```
+```java
 public List<XXXBean> getXXXBeanList(@Param("id")String id, @Param("code")String code);  
 
 ```
 
-```
+```xml
 <select id="getXXXBeanList" resultType="XXBean">
 
 　　select t.* from tableName where id = #{id} and name = #{code}  
@@ -3964,7 +3964,7 @@ public List<XXXBean> getXXXBeanList(@Param("id")String id, @Param("code")String 
 
 3、map封装
 
-```
+```xml
 <select id="getXXXBeanList" parameterType="hashmap" resultType="XXBean">
 
 　　select 字段... from XXX where id=#{xxId} code = #{xxCode}  
@@ -4003,7 +4003,7 @@ public List<XXXBean> getXXXBeanList(@Param("id")String id, @Param("code")String 
 
 SqlSessionFactory是MyBatis的关键对象,它是个单个数据库映射关系经过编译后的内存镜像.SqlSessionFactory对象的实例可以通过SqlSessionFactoryBuilder对象类获得,而SqlSessionFactoryBuilder则可以从XML配置文件或一个预先定制的Configuration的实例构建出SqlSessionFactory的实例.每一个MyBatis的应用程序都以一个SqlSessionFactory对象的实例为核心.同时SqlSessionFactory也是线程安全的,SqlSessionFactory一旦被创建,应该在应用执行期间都存在.在应用运行期间不要重复创建多次,建议使用单例模式.SqlSessionFactory是创建SqlSession的工厂.
 
-```
+```java
 //SqlSessionFactory接口源码如下所示:
 
 package org.apache.ibatis.session;
@@ -4034,7 +4034,7 @@ public interface SqlSessionFactory {
 
 SqlSession是MyBatis的关键对象,是执行持久化操作的独享,类似于JDBC中的Connection.它是应用程序与持久层之间执行交互操作的一个单线程对象,也是MyBatis执行持久化操作的关键对象.SqlSession对象完全包含以数据库为背景的所有执行SQL操作的方法,它的底层封装了JDBC连接,可以用SqlSession实例来直接执行被映射的SQL语句.每个线程都应该有它自己的SqlSession实例.SqlSession的实例不能被共享,同时SqlSession也是线程不安全的,绝对不能讲SqlSeesion实例的引用放在一个类的静态字段甚至是实例字段中.也绝不能将SqlSession实例的引用放在任何类型的管理范围中,比如Servlet当中的HttpSession对象中.使用完SqlSeesion之后关闭Session很重要,应该确保使用finally块来关闭它.
 
-```
+```java
 //SqlSession接口源码如下所示:
 
 package org.apache.ibatis.session;
@@ -4127,7 +4127,7 @@ BatchExecutor：执行update（没有select，JDBC批处理不支持select），
 
 这里要注意这三者之间比例是1：1：n。也就是说多个SQL操作对应一个会话，和唯一的执行器以及N个StatementHandler。这里的N取决于通过会话调用了多少次Sql（命中缓存除外）。
 
-```
+```java
 // 基于JDBC 声明Statement
 Statement prepare(Connection connection, Integer transactionTimeout)
     throws SQLException;
@@ -4190,7 +4190,7 @@ int update(Statement statement)
 
 每次当我们调用sqlSession的getMapper方法时，都会创建一个新的动态代理类实例，如：
 
-```
+```java
 sqlSession.getMapper(UserMapper.class);
 ```
 
@@ -4247,7 +4247,7 @@ MyBatis一二级缓存的CacheKey是一至的，必须满足以条件才可以�
 
 1、limit分页
 
-```
+```java
     <select id="getUserInfo1" parameterType="map" resultType="dayu">
         select * from user
         <if test="startPos!=null and pageSize!=null">
@@ -4257,7 +4257,7 @@ MyBatis一二级缓存的CacheKey是一至的，必须满足以条件才可以�
 
 ```
 
-```
+```java
 List<User> getUserInfo1(Map<String,Object> map);
 ```
 
@@ -4270,7 +4270,7 @@ RowBounds帮我们省略了limit的内容，我们只需要在业务层关注分
 
 但是，这个属于逻辑分页，即实际上sql查询的是所有的数据，在业务层进行了分页而已，比较占用内存，而且数据更新不及时，可能会有一定的滞后性！不推荐使用！
 
-```
+```java
 @Test
     public void selectUserRowBounds() {
         SqlSession session = MybatisUtils.getSession();
@@ -4289,7 +4289,7 @@ RowBounds帮我们省略了limit的内容，我们只需要在业务层关注分
 
 3、PageHelper
 
-```
+```java
     <dependency>
        <groupId>com.github.pagehelper</groupId>
        <artifactId>pagehelper</artifactId>
@@ -4297,14 +4297,14 @@ RowBounds帮我们省略了limit的内容，我们只需要在业务层关注分
     </dependency>
 ```
 
-```
+```java
     <plugins>
         <plugin interceptor="com.github.pagehelper.PageInterceptor" />
     </plugins>
 
 ```
 
-```
+```java
 @Test
     public void selectUserPageHelper() {
         SqlSession session = MybatisUtils.getSession();
@@ -4332,7 +4332,7 @@ RowBounds帮我们省略了limit的内容，我们只需要在业务层关注分
 
 1、引入最新的依赖
 
-```
+```java
 <dependency>
         <groupId>com.baomidou</groupId>
         <artifactId>mybatis-plus-boot-starter</artifactId>
@@ -4346,7 +4346,7 @@ RowBounds帮我们省略了limit的内容，我们只需要在业务层关注分
 
 3、在Spring启动类中添加MapperScan注解
 
-```
+```java
 @SpringBootApplication
 @MapperScan("com.example.mybatisplus.mapper")
 public class MybatisPlusApplication {
@@ -4360,7 +4360,7 @@ public class MybatisPlusApplication {
 
 4、创建Mapper类时，继承BaseMapper类，这是MybatisPlus提供的一个基类，封装了常用的查询操作
 
-```
+```java
 public interface UserMapper extends BaseMapper<UserDO> {
 }
 ```
@@ -4371,12 +4371,12 @@ public interface UserMapper extends BaseMapper<UserDO> {
 
 MP除了通用的Mapper还是通用的Servcie层，这也减少了相对应的代码工作量。
 
-```
+```java
 public interface EmployeeService extends IService<Employee> {
 }
 ```
 
-```
+```java
 @Service
 public class EmployeeImpl extends ServiceImpl<EmployeeMapper, Employee> implements EmployeeService {
 }
@@ -4390,7 +4390,7 @@ public class EmployeeImpl extends ServiceImpl<EmployeeMapper, Employee> implemen
 
 1、配置文件
 
-```
+```java
 mybatis-plus:
   global-config:
     db-config:
@@ -4401,7 +4401,7 @@ mybatis-plus:
 
 2、实体类字段上加上@TableLogic注解
 
-```
+```java
 @TableLogic
 private Integer deleted;
 ```
@@ -4414,7 +4414,7 @@ private Integer deleted;
 
 1、配置
 
-```
+```java
 
 @Configuration
 public class MyBatisPlusConfig {
@@ -4434,7 +4434,7 @@ public class MyBatisPlusConfig {
 
 2、简单查询
 
-```
+```java
     /**
      * 分页查询
      */
@@ -4465,7 +4465,7 @@ public class MyBatisPlusConfig {
 
 IPage是返回封装好的结果，Page是传过去的参数
 
-```
+```java
 IPage<UserVo> selectPageVo(IPage<?> page, Integer state);
 // or (class MyPage extends Ipage<UserVo>{ private Integer state; })
 MyPage selectPageVo(MyPage page);
@@ -4473,7 +4473,7 @@ MyPage selectPageVo(MyPage page);
 List<UserVo> selectPageVo(IPage<UserVo> page, Integer state);
 ```
 
-```
+```xml
 <select id="selectPageVo" resultType="xxx.xxx.xxx.UserVo">
     SELECT id,name FROM user WHERE state=#{state}
 </select>
@@ -4489,7 +4489,7 @@ List<UserVo> selectPageVo(IPage<UserVo> page, Integer state);
 
 eq：等于，ne：不等于
 
-```
+```java
 @Test
 public void testSelectOne() {
     QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -4502,7 +4502,7 @@ public void testSelectOne() {
 
 gt：大于，ge：大于等于，lt：小于，le：小于等于
 
-```
+```java
  
 @Test
 public void testDelete() {
@@ -4523,7 +4523,7 @@ public void testDelete() {
 
 1、配置
 
-```
+```java
 @Configuration
 public class MyConfig {
 
@@ -4540,7 +4540,7 @@ public class MyConfig {
 
 2、在实体类的字段上加上@Version注解
 
-```
+```java
 @Version
 private Integer version
 ```
@@ -4551,7 +4551,7 @@ private Integer version
 
 实体类加注解
 
-```
+```java
 /**
      * 创建时间
      */
@@ -4576,7 +4576,7 @@ private Integer version
 
 实现字段填充控制器，编写自定义填充规则
 
-```
+```java
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
@@ -4768,7 +4768,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
 在resources文件下创建activiti.cfg.xml
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -4795,7 +4795,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
 
 
-```
+```java
 /**
  * 流程定义的部署
  * activiti表有哪些？
@@ -4825,7 +4825,7 @@ public void createDeploy() {
 
 
 
-```
+```java
 @Test
 public void queryProcessDefinition() { 
     String processDefinitionKey = "holiday"; 
@@ -4855,7 +4855,7 @@ public void queryProcessDefinition() {
 
 
 
-```
+```java
 /**
  * 删除已经部署成功的流程定义
  * 背后影响的表:
@@ -4881,7 +4881,7 @@ public void deleteDeployment() {
 
 
 
-```
+```java
 @Test
 public void startProcessInstance() {
     RuntimeService runtimeService = processEngine.getRuntimeService();
@@ -4906,7 +4906,7 @@ Businesskey：业务标识，通常为业务表的主键，业务标识和流程
 
 
 
-```
+```java
 @Test
 public void queryProcessInstance() { 
     String processDefinitionKey = "holiday"; 
@@ -4933,7 +4933,7 @@ public void queryProcessInstance() {
 
 流程启动后，任务的负责人就可以查询自己当前需要处理的任务，查询出来的任务都是该用户的待办任务。
 
-```
+```java
     //2.任务查询
     //流程启动后，任务的负责人就可以查询自己当前需要处理的任务，查询出来的任务都是该用户的待办任务。
     @Test
@@ -4971,7 +4971,7 @@ public void queryProcessInstance() {
 
 
 
-```
+```java
     @Test
     public void completTask(){
 
@@ -5001,7 +5001,7 @@ public void queryProcessInstance() {
 
 流程变量可以在启动流程定义时把我们的对象作为流程变量设置进去，也可以使用setVariable设置
 
-```
+```java
     /**设置流程变量*/
 	@Test
 	public void setVariables(){
@@ -5048,7 +5048,7 @@ public void queryProcessInstance() {
 
 
 
-```
+```java
         /**获取流程变量*/
 	@Test
 	public void getVariables(){
@@ -5086,7 +5086,7 @@ public void queryProcessInstance() {
 
 ![img](https://raw.githubusercontent.com/a1254898873/images/master/202203241050559.png)
 
-```
+```java
  1     /**
  2      * 流程部署
  3      * `act_ge_bytearray` 流程定义的资源信息，包含bpmn和png流程文件信息
@@ -5118,7 +5118,7 @@ public void queryProcessInstance() {
 
 
 
-```
+```java
  1  /**
  2      * 启动一个流程实例
  3      */
@@ -5158,7 +5158,7 @@ public void queryProcessInstance() {
 
 
 
-```
+```java
 
 
 /**
