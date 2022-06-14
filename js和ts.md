@@ -1874,3 +1874,829 @@ function displayName() {
 Hi John
 ```
 
+
+
+
+
+
+
+
+
+
+
+# TypeScript
+
+## Debug
+
+```
+{
+        "name": "Launch index.ts",
+        "type": "node",
+        "request": "launch",
+        "runtimeArgs": [
+            "-r",
+            "ts-node/register"
+        ],
+        "args": [
+            "${workspaceFolder}/src/index.ts"
+        ]
+}
+```
+
+we should add runtimeArgs into the file called launch.json
+
+
+
+
+
+
+
+## Basic Types
+
+### Number Type
+
+```typescript
+let price: number;
+```
+
+Or you can initialize the price variable to a number:
+
+
+
+
+
+### String Type
+
+```typescript
+let firstName: string = 'John';
+let title: string = "Web Developer";
+```
+
+```typescript
+let firstName: string = `John`;
+let title: string = `Web Developer`;
+let profile: string = `I'm ${firstName}. 
+I'm a ${title}`;
+
+console.log(profile);
+```
+
+
+
+
+
+### Object Type
+
+```typescript
+let employee: object;
+
+employee = {
+    firstName: 'John',
+    lastName: 'Doe',
+    age: 25,
+    jobTitle: 'Web Developer'
+};
+
+console.log(employee);
+```
+
+To explicitly specify properties of the employee object, you first use the following syntax to declare the employee object:
+
+```typescript
+let employee: {
+    firstName: string;
+    lastName: string;
+    age: number;
+    jobTitle: string;
+};
+```
+
+And then you assign the employee object to a literal object with the described properties:
+
+```typescript
+employee = {
+    firstName: 'John',
+    lastName: 'Doe',
+    age: 25,
+    jobTitle: 'Web Developer'
+};
+```
+
+
+
+
+
+
+
+### Array Type
+
+```typescript
+let arrayName: type[];
+```
+
+```typescript
+let skills: string[];
+```
+
+And you can add one or more strings to the array:
+
+```typescript
+skills[0] = "Problem Solving";
+skills[1] = "Programming";
+```
+
+or use the push() method:
+
+```typescript
+skills.push('Software Design');
+```
+
+The following illustrates how to declare an array that hold both strings and numbers:
+
+```typescript
+let scores = ['Programming', 5, 'Software Design', 4]; 
+```
+
+```typescript
+let scores : (string | number)[];
+scores = ['Programming', 5, 'Software Design', 4]; 
+```
+
+
+
+
+
+### Tuple type
+
+A tupple is an array with a fixed number of elements whose types are known.
+
+```typescript
+let skill: [string, number];
+skill = ['Programming', 5];
+```
+
+
+
+
+
+
+
+### Enum Types
+
+A TypeScript enum is a group of constant values.
+
+```typescript
+enum name {constant1, constant2, ...};
+```
+
+```typescript
+enum ApprovalStatus {
+    draft,
+    submitted,
+    approved,
+    rejected
+};
+```
+
+```typescript
+const request =  {
+    id: 1,
+    status: ApprovalStatus.approved,
+    description: 'Please approve this request'
+};
+
+if(request.status === ApprovalStatus.approved) {
+    // send an email
+    console.log('Send email to the Applicant...');
+}
+```
+
+
+
+
+
+
+
+### Any Type
+
+The TypeScript any type allows you to store a value of any type. It instructs the compiler to skip type checking.
+
+Use the any type to store a value that you don’t actually know its type at the compile-time or when you migrate a JavaScript project over to a TypeScript project.
+
+```typescript
+let result: any;
+```
+
+
+
+
+
+### Never Type
+
+The never type contains no value.
+
+The never type represents the return type of a function that always throws an error or a function that contains an indefinite loop.
+
+```typescript
+function raiseError(message: string): never {
+    throw new Error(message);
+}
+```
+
+The return type of the following function is inferred to the never type:
+
+```typescript
+function reject() { 
+   return raiseError('Rejected');
+}
+```
+
+
+
+
+
+### Union Types
+
+A TypeScript union type allows you to store a value of one or serveral types in a variable.
+
+```typescript
+let result: number | string;
+result = 10; // OK
+result = 'Hi'; // also OK
+result = false; // a boolean value, not OK
+```
+
+
+
+
+
+### Type Aliases
+
+```typescript
+type alias = existingType;
+```
+
+```typescript
+type alphanumeric = string | number;
+let input: alphanumeric;
+input = 100; // valid
+input = 'Hi'; // valid
+input = false; // Compiler error
+```
+
+
+
+
+
+### String Literal Types
+
+A TypeScript string literal type defines a type that accepts specified string literal.
+
+```typescript
+type MouseEvent: 'click' | 'dblclick' | 'mouseup' | 'mousedown';
+let mouseEvent: MouseEvent;
+mouseEvent = 'click'; // valid
+mouseEvent = 'dblclick'; // valid
+mouseEvent = 'mouseup'; // valid
+mouseEvent = 'mousedown'; // valid
+mouseEvent = 'mouseover'; // compiler error
+
+let anotherEvent: MouseEvent;
+```
+
+
+
+
+
+
+
+
+
+## Functions
+
+### declare a function
+
+```typescript
+function name(parameter: type, parameter:type,...): returnType {
+   // do something
+}
+```
+
+If a function does not return a value, you can use the void type as the return type. The void keyword indicates that the function doesn’t return any value.
+
+```typescript
+function echo(message: string): void {
+    console.log(message.toUpperCase());
+}
+```
+
+When you do not annotate the return type, TypeScript will try to infer an appropriate type. 
+
+```typescript
+function add(a: number, b: number) {
+    return a + b;
+}
+```
+
+
+
+
+
+### Optional Parameters
+
+To make a function parameter optional, you use the ? after the parameter name. 
+
+```typescript
+function multiply(a: number, b: number, c?: number): number {
+
+    if (typeof c !== 'undefined') {
+        return a * b * c;
+    }
+    return a * b;
+}
+```
+
+- First, use the `?` after the `c` parameter.
+- Second, check if the argument is passed to the function by using the expression `typeof c !== 'undefined'`.
+
+
+
+
+
+### Default Parameters
+
+```typescript
+function name(parameter1:type=defaultvalue1, parameter2:type=defaultvalue2,...) {
+   //
+}
+```
+
+```typescript
+function applyDiscount(price: number, discount: number = 0.05): number {
+    return price * (1 - discount);
+}
+
+console.log(applyDiscount(100)); // 95
+```
+
+
+
+
+
+### Rest Parameters
+
+A rest parameter allows you a function to accept zero or more arguments of the specified type.
+
+```typescript
+function fn(...rest: type[]) {
+   //...
+}
+```
+
+```typescript
+function getTotal(...numbers: number[]): number {
+    let total = 0;
+    numbers.forEach((num) => total += num);
+    return total;
+}
+```
+
+
+
+
+
+## Classes
+
+### declare a class
+
+```typescript
+class Person {
+    ssn: string;
+    firstName: string;
+    lastName: string;
+
+    constructor(ssn: string, firstName: string, lastName: string) {
+        this.ssn = ssn;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    getFullName(): string {
+        return `${this.firstName} ${this.lastName}`;
+    }
+}
+```
+
+```typescript
+let person = new Person(171280926, 'John', 'Doe');
+```
+
+
+
+
+
+### Access Modifiers
+
+The private modifier
+
+```typescript
+class Person {
+    private ssn: string;
+    private firstName: string;
+    private lastName: string;
+    // ...
+}
+```
+
+Once the private property is in place, you can access the ssn property in the constructor or methods of the Person class. 
+
+```typescript
+class Person {
+    private ssn: string;
+    private firstName: string;
+    private lastName: string;
+
+    constructor(ssn: string, firstName: string, lastName: string) {
+        this.ssn = ssn;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    getFullName(): string {
+        return `${this.firstName} ${this.lastName}`; 
+    }
+}
+```
+
+
+
+The public modifier
+
+If you don’t specify any access modifier for properties and methods, they will take the public modifier by default.
+
+```typescript
+class Person {
+    // ...
+    public getFullName(): string {
+        return `${this.firstName} ${this.lastName}`; 
+    }
+    // ...
+}
+```
+
+
+
+
+
+The protected modifier
+
+The protected modifier allows properties and methods of a class to be accessible within same class and within subclasses.
+
+```typescript
+class Person {
+
+    protected ssn: string;
+    
+    // other code
+}
+
+```
+
+
+
+
+
+
+
+### Static Methods and Properties
+
+Static properties and methods are shared by all instances of a class.
+
+```typescript
+class Employee {
+    private static headcount: number = 0;
+
+    constructor(
+        private firstName: string,
+        private lastName: string,
+        private jobTitle: string) {
+
+        Employee.headcount++;
+    }
+
+    public static getHeadcount() {
+        return Employee.headcount;
+    }
+}
+```
+
+
+
+
+
+### Abstract Classes
+
+```typescript
+abstract class Employee {
+    //...
+}
+
+```
+
+```typescript
+abstract class Employee {
+    constructor(private firstName: string, private lastName: string) {
+    }
+    abstract getSalary(): number
+    get fullName(): string {
+        return `${this.firstName} ${this.lastName}`;
+    }
+    compensationStatement(): string {
+        return `${this.fullName} makes ${this.getSalary()} a month.`;
+    }
+}
+```
+
+The getSalary() method is an abstract method. The derived class will implement the logic based on the type of employee.
+
+
+
+
+
+### Inheritances
+
+```typescript
+class Employee extends Person {
+    //..
+}
+```
+
+To call the constructor of the parent class in the constructor of the child class, you use the super()
+
+```typescript
+class Employee extends Person {
+    constructor(
+        firstName: string,
+        lastName: string,
+        private jobTitle: string) {
+        
+        // call the constructor of the Person class:
+        super(firstName, lastName);
+    }
+}
+```
+
+
+
+
+
+
+
+## Interfaces
+
+### type checking
+
+TypeScript interfaces define contracts in your code and provide explicit names for type checking.
+
+```typescript
+interface Person {
+    firstName: string;
+    lastName: string;
+}
+```
+
+```typescript
+function getFullName(person: Person) {
+    return `${person.firstName} ${person.lastName}`;
+}
+
+let john = {
+    firstName: 'John',
+    lastName: 'Doe'
+};
+
+console.log(getFullName(john));
+```
+
+The getFullName() function will accept any argument that has two string properties. 
+
+ And it doesn’t have to have exactly two string properties. 
+
+```typescript
+let jane = {
+   firstName: 'Jane',
+   middleName: 'K.'
+   lastName: 'Doe',
+   age: 22
+};
+```
+
+Since the jane object has two string properties firstName and lastName, you can pass it into the getFullName() function as follows:
+
+```typescript
+let fullName = getFullName(jane);
+console.log(fullName); // Jane Doe
+```
+
+
+
+
+
+
+
+
+
+### Function types
+
+To describe a function type, you assign the interface to the function signature that contains the parameter list with types and returned types.
+
+```typescript
+interface StringFormat {
+    (str: string, isUpper: boolean): string
+}
+```
+
+```typescript
+let format: StringFormat;
+
+format = function (str: string, isUpper: boolean) {
+    return isUpper ? str.toLocaleUpperCase() : str.toLocaleLowerCase();
+};
+
+console.log(format('hi', true));
+```
+
+
+
+
+
+
+
+
+
+### Class Types
+
+Interfaces are typically used as class types that make a contract between unrelated classes.
+
+```typescript
+interface Json {
+   toJSON(): string
+}
+```
+
+```typescript
+class Person implements Json {
+    constructor(private firstName: string,
+        private lastName: string) {
+    }
+    toJson(): string {
+        return JSON.stringify(this);
+    }
+}
+
+```
+
+
+
+
+
+
+
+
+
+## Generics
+
+### introduction of generics
+
+The T allows you to capture the type that is provided at the time of calling the function. 
+
+```typescript
+function getRandomElement<T>(items: T[]): T {
+    let randomIndex = Math.floor(Math.random() * items.length);
+    return items[randomIndex];
+}
+```
+
+```typescript
+let numbers = [1, 5, 7, 4, 2, 9];
+let randomEle = getRandomElement<number>(numbers); 
+console.log(randomEle);
+```
+
+
+
+
+
+### Generic Interfaces
+
+Generic interfaces that describe object properties
+
+```typescript
+interface Pair<K, V> {
+    key: K;
+    value: V;
+}
+
+```
+
+```typescript
+let month: Pair<string, number> = {
+    key: 'Jan',
+    value: 1
+};
+
+console.log(month);
+```
+
+
+
+Generic interfaces that describe methods
+
+```typescript
+interface Collection<T> {
+    add(o: T): void;
+    remove(o: T): void;
+}
+
+```
+
+```typescript
+class List<T> implements Collection<T>{
+    private items: T[] = [];
+
+    add(o: T): void {
+        this.items.push(o);
+    }
+    remove(o: T): void {
+        let index = this.items.indexOf(o);
+        if (index > -1) {
+            this.items.splice(index, 1);
+        }
+    }
+}
+
+```
+
+
+
+Generic interfaces that describe index types
+
+```typescript
+interface Options<T> {
+    [name: string]: T
+}
+
+let inputOptions: Options<boolean> = {
+    'disabled': false,
+    'visible': true
+};
+
+```
+
+
+
+
+
+### Generic Classes
+
+```typescript
+class Stack<T> {
+    private elements: T[] = [];
+
+    constructor(private size: number) {
+    }
+    isEmpty(): boolean {
+        return this.elements.length === 0;
+    }
+    isFull(): boolean {
+        return this.elements.length === this.size;
+    }
+    push(element: T): void {
+        if (this.elements.length === this.size) {
+            throw new Error('The stack is overflow!');
+        }
+        this.elements.push(element);
+
+    }
+    pop(): T {
+        if (this.elements.length == 0) {
+            throw new Error('The stack is empty!');
+        }
+        return this.elements.pop();
+    }
+}
+
+```
+
+```typescript
+let numbers = new Stack<number>(5);
+```
+
+
+
+
+
+
+
+
+

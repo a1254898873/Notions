@@ -642,7 +642,297 @@ print( len(l) )            # 列表元素个数
 
 
 
+## 三大器
 
+### 装饰器
+
+装饰器本质上是一个 Python 函数或类，它可以让其他函数或类在不需要做任何代码修改的前提下增加额外功能，装饰器的返回值也是一个函数/类对象。它经常用于有切面需求的场景，比如：插入日志、性能测试、事务处理、缓存、权限校验等场景，装饰器是解决这类问题的绝佳设计。有了装饰器，我们就可以抽离出大量与函数功能本身无关的雷同代码到装饰器中并继续重用。概括的讲，装饰器的作用就是为已经存在的对象添加额外的功能。
+
+
+
+**简单装饰器：**
+
+```python
+def use_logging(func):
+
+    def wrapper():
+        logging.warn("%s is running" % func.__name__)
+        return func()   # 把 foo 当做参数传递进来时，执行func()就相当于执行foo()
+    return wrapper
+
+def foo():
+    print('i am foo')
+
+foo = use_logging(foo)  # 因为装饰器 use_logging(foo) 返回的时函数对象 wrapper，这条语句相当于  foo = wrapper
+foo()  
+```
+
+
+
+**语法糖：**
+
+```python
+def use_logging(func):
+
+    def wrapper():
+        logging.warn("%s is running" % func.__name__)
+        return func()
+    return wrapper
+
+@use_logging
+def foo():
+    print("i am foo")
+
+foo()
+```
+
+
+
+
+
+
+
+### 迭代器
+
+如果要自定义实现一个迭代器，则类中必须实现如下 2 个方法：
+
+1. __next__(self)：返回容器的下一个元素。
+2. __iter__(self)：该方法返回一个迭代器（iterator）。
+
+```python
+class PowTwo:
+    """Class to implement an iterator
+    of powers of two"""
+
+    def __init__(self, max = 0):
+        self.max = max
+
+    def __iter__(self):
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n <= self.max:
+            result = 2 ** self.n
+            self.n += 1
+            return result
+        else:
+            raise StopIteration
+```
+
+```
+>>> a = PowTwo(4)
+>>> i = iter(a)
+>>> next(i)
+1
+>>> next(i)
+2
+>>> next(i)
+4
+>>> next(i)
+8
+>>> next(i)
+16
+>>> next(i)
+Traceback (most recent call last):
+...
+StopIteration
+```
+
+我们也可以用for循环来迭代它：
+
+```
+>>> for i in PowTwo(5):
+...     print(i)
+... 
+1
+2
+4
+8
+16
+32
+```
+
+
+
+
+
+### 生成器
+
+生成器是一个特殊的程序，可以被用作控制循环的迭代行为，python中生成器是迭代器的一种，使用yield返回值函数，每次调用yield会暂停，而可以使用next()函数和send()函数恢复生成器。
+
+（1）括号创建法
+
+在Python当中，我们经常这样初始化一个数组：
+
+```python
+arr = [i * 3 for i in range(10)]
+```
+
+我们稍微变形一下，就得到了一个最简单的生成器
+
+```python
+g = (i * 3 for i in range(10))
+
+print(next(g))
+```
+
+看清楚了吗，其实和list没什么差别，只是我们将最外层的括号从[]换成了()。
+
+这样和上面用[]定义有什么区别呢？
+
+其实是有区别的，如果没有区别，那么我们用生成器也就没有意义了。它的区别也就是生成器的意义，简单来说，我们前文中已经说过了当定义一个list的时候，Python会自动将for循环执行一遍，然后将结果写入进list当中。但是生成器不会，虽然我们也用到了for循环，但是它只是起到了限制个数的作用，在执行完这一步之后，Python并不会将for循环执行结束。**只有我们每次调用next，才会触发它进行一次循环**。
+
+
+
+
+
+（2）函数创建法
+
+```python
+def gtr(n):
+    for i in range(n):
+        yield i
+```
+
+
+
+```python
+def test():
+    n = 0
+    while True:
+        if n < 3:
+            yield n
+            n += 1
+        else:
+            yield 10
+            
+            
+if __name__ == '__main__':
+    t = test()
+    for i in range(10):
+        print(next(t))
+```
+
+我们如果执行上面这段代码，前三个数是0，1和2，从第四个数开始一直是10。
+
+
+
+
+
+## 异步编程
+
+### 多线程
+
+```
+import threading
+from threading import Lock,Thread
+```
+
+1、普通创建方式
+
+```python
+def run(n):
+    print('task',n)
+    time.sleep(1)
+    print('2s')
+    time.sleep(1)
+    print('1s')
+    time.sleep(1)
+    print('0s')
+    time.sleep(1)
+
+if __name__ == '__main__':
+    t1 = threading.Thread(target=run,args=('t1',))     # target是要执行的函数名（不是函数），args是函数对应的参数，以元组的形式存在
+    t2 = threading.Thread(target=run,args=('t2',))
+    t1.start()
+    t2.start()
+
+```
+
+
+
+2、自定义线程
+
+```python
+class MyThread(threading.Thread):
+    def __init__(self,n):
+        super(MyThread,self).__init__()   #重构run函数必须写
+        self.n = n
+
+    def run(self):
+        print('task',self.n)
+        time.sleep(1)
+        print('2s')
+        time.sleep(1)
+        print('1s')
+        time.sleep(1)
+        print('0s')
+        time.sleep(1)
+
+if __name__ == '__main__':
+    t1 = MyThread('t1')
+    t2 = MyThread('t2')
+    t1.start()
+    t2.start()
+```
+
+
+
+### 多进程
+
+```
+from multiprocessing import  Process
+```
+
+1、普通创建方式
+
+```python
+from multiprocessing import  Process
+def fun1(name):
+    print('测试%s多进程' %name)
+
+if __name__ == '__main__':
+    process_list = []
+    for i in range(5):  #开启5个子进程执行fun1函数
+        p = Process(target=fun1,args=('Python',)) #实例化进程对象
+        p.start()
+        process_list.append(p)
+
+    for i in process_list:
+        p.join()
+
+    print('结束测试')
+```
+
+
+
+2、自定义进程
+
+```python
+from multiprocessing import  Process
+
+class MyProcess(Process): #继承Process类
+    def __init__(self,name):
+        super(MyProcess,self).__init__()
+        self.name = name
+
+    def run(self):
+        print('测试%s多进程' % self.name)
+
+
+if __name__ == '__main__':
+    process_list = []
+    for i in range(5):  #开启5个子进程执行fun1函数
+        p = MyProcess('Python') #实例化进程对象
+        p.start()
+        process_list.append(p)
+
+    for i in process_list:
+        p.join()
+
+    print('结束测试')
+```
 
 
 
@@ -678,4 +968,628 @@ Python 有种特殊的语法，可以把 else 块紧跟在整个 for 循环或 w
 - 把切片放在赋值符号的左侧可以将原列表中这段范围内的元素用赋值符号右侧的元素替换掉，但可能会改变原列表的长度。
 
 
+
+
+
+
+
+
+
+
+
+# QT
+
+## designer
+
+```
+pip install PyQt5-tools
+```
+
+<img src="https://raw.githubusercontent.com/a1254898873/images/master/202206101708574.png" alt="img" style="zoom:67%;" />
+
+```
+名称：Qt Designe
+
+程序：C:\Users\a1254\Desktop\python\pyqt\venv\Lib\site-packages\qt5_applications\Qt\bin\designer.exe
+
+工作目录：$ProjectFileDir$
+
+```
+
+
+
+添加：PyUIC(点击加号)按照下方的规则填写，如图所示：
+
+<img src="https://raw.githubusercontent.com/a1254898873/images/master/202206101709463.png" alt="img" style="zoom:67%;" />
+
+```
+名称：PyUIC
+
+程序：C:\Users\Administrator\AppData\Local\Programs\Python\Python39\Scripts\pyuic5.exe
+
+参数：$FileName$ -o $FileNameWithoutExtension$.py
+
+工作目录：$ProjectFileDir$
+
+```
+
+
+
+
+
+
+
+## pyuic5
+
+可以将ui文件转换为py文件
+
+```
+pyuic5 -o main.py proxy.ui
+```
+
+
+
+
+
+## 初始化
+
+当pyuic5将ui文件转换成py文件的时候，此时会自动生成一个只包含Ui_MainWindow的类，类之外没有可以执行的代码，当你执行这个代码的时候，不会报错，但是什么也不会发生。如果要显示UI界面的话，可以在生成的py代码中添加几行代码就可以啦
+
+生成的.py文件自动引入了PyQt5库中的几个大类：QtCore, QtGui, QtWidgets等；（你用到什么类，他就自动生成什么类）也可以输入from PyQt5.QtWidgets import *，这样就会把所有的类都导入啦
+
+```python
+#from PyQt5 import QtCore, QtGui, QtWidgets
+import sys
+```
+
+```python
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)  # 创建一个QApplication，也就是你要开发的软件app
+    MainWindow = QtWidgets.QMainWindow()    # 创建一个QMainWindow，用来装载你需要的各种组件、控件
+    ui = Ui_MainWindow()                    # ui是Ui_MainWindow()类的实例化对象
+    ui.setupUi(MainWindow)                  # 执行类中的setupUi方法，方法的参数是第二步中创建的QMainWindow
+    MainWindow.show()                       # 执行QMainWindow的show()方法，显示这个QMainWindow
+    sys.exit(app.exec_())                   # 使用exit()或者点击关闭按钮退出QApplicat
+
+```
+
+
+
+
+
+
+
+## 常用控件
+
+### 1、按钮
+
+**信号：被点击**
+
+当按钮被点击就会发出 clicked 信号，可以这样指定处理该信号的函数
+
+```python
+button.clicked.connect(handleCalc)
+```
+
+
+
+**改变文本**
+
+代码中可以使用 `setText` 方法来改变按钮文本，比如
+
+```python
+button.setText(text)
+```
+
+
+
+**禁用、启用**
+
+所有控件（继承自QWidget类）都支持 禁用和启用方法。
+
+禁用后，该控件不再处理用户操作
+
+- 禁用
+
+```python
+button.setEnabled(False)
+```
+
+- 启用
+
+```python
+button.setEnabled(True)
+```
+
+
+
+### 2、编辑框
+
+**信号：文本被修改**
+
+当文本框中的内容被键盘编辑，被点击就会发出 `textChanged `信号，可以这样指定处理该信号的函数
+
+```python
+edit.textChanged.connect(handleTextChange)
+```
+
+Qt在调用这个信号处理函数时，传入的参数就是 文本框目前的内容字符串。
+
+
+
+
+
+**信号：按下回车键**
+
+当用户在文本框中任何时候按下回车键，就会发出 `returnPressed` 信号。
+
+有时我们需要处理这种情况，比如登录界面，用户输完密码直接按回车键就进行登录处理，比再用鼠标点击登录按钮快捷的多。
+
+可以指定处理 returnPressed 信号，如下所示
+
+```python
+passwordEdit.returnPressed.connect(onLogin)
+```
+
+
+
+**获取文本**
+
+通过 `toPlainText()` 方法获取编辑框内的文本内容，比如
+
+```python
+text = edit.toPlainText()
+```
+
+
+
+**设置文本**
+
+通过 `setText` 方法设置编辑框内的文本内容为参数里面的文本字符串，比如
+
+```python
+edit.setText('你好，白月黑羽')
+```
+
+原来的所有内容会被清除
+
+
+
+
+
+### 3、标签
+
+**改变文本**
+
+代码中可以使用 `setText` 方法来改变标签文本内容，比如
+
+```python
+button.setText(text)
+```
+
+
+
+
+
+### 4、组合选择框
+
+**信号：选项改变**
+
+如果用户操作修改了QComboBox中的选项就会发出 `currentIndexChanged `信号，可以这样指定处理该信号的函数
+
+```python
+cbox.currentIndexChanged.connect(handleSelectionChange)
+```
+
+
+
+**获取当前选项文本**
+
+代码中可以使用 `currentText` 方法来获取当前 `选中的选项` 的文本，比如
+
+```python
+method = cbox.currentText()
+```
+
+
+
+
+
+### 5、列表
+
+**添加一个选项**
+
+代码中可以使用 `addItem` 方法来添加一个选项到 `末尾` ，参数就是选项文本
+
+```python
+listWidget.addItem('byhy')
+```
+
+
+
+**删除一个选项**
+
+代码中可以使用 `takeItem` 方法来删除1个选项，参数是该选项所在行
+
+```python
+listWidget.takeItem(1)
+```
+
+就会删除第二行选项
+
+
+
+**清空选项**
+
+代码中可以使用 `clear` 方法来清空选项，也就是删除选择框内所有的选项
+
+```python
+listWidget.clear()
+```
+
+
+
+**获取当前选项文本**
+
+`currentItem` 方法可以得到列表当前选中项对象（QListWidgetItem） ，再调用这个对象的 `text` 方法，就可以获取文本内容，比如
+
+```python
+listWidget.currentItem().text()
+```
+
+
+
+可以使用 item 方法获取指定某行的 QListWidgetItem，
+
+比如，
+
+```python
+listWidget.item(0).text()
+```
+
+就获取了 `第1行` 的列表项的文本。
+
+
+
+
+
+### 6、表格
+
+**插入一行、删除一行**
+
+`insertRow` 方法可以在指定位置插入一行，比如
+
+```python
+table.insertRow(0)
+```
+
+就插入一行到第 `1` 行这个位置， 表格原来第1行（包括原来的第1行）以后的内容，全部往下移动一行。
+
+```python
+table.insertRow(2)
+```
+
+就插入一行到第 `3` 行这个位置， 表格原来第3行（包括原来的第3行）以后的内容，全部往下移动一行。
+
+
+
+`removeRow` 方法可以删除指定位置的一行，比如
+
+```python
+table.removeRow(0)
+```
+
+就删除第 `1` 行， 表格原来第1行以后的内容，全部往上移动一行。
+
+```python
+table.removeRow(2)
+```
+
+就删除第 `3` 行， 表格原来第3行以后的内容，全部往上移动一行。
+
+
+
+
+
+**设置单元格内容、对齐、属性**
+
+qt表格的单元格内的内容对象 是一个 单元格对象 `QTableWidgetItem` 实例
+
+如果单元格 `没有被设置过` 内容，可以这样
+
+```python
+from PySide2.QtWidgets import QTableWidgetItem
+
+item = QTableWidgetItem()
+item.setText('白月黑羽')
+table.setItem(row, 0, item)
+```
+
+也可以简写为
+
+```python
+from PySide2.QtWidgets import QTableWidgetItem
+
+table.setItem(row, 0, QTableWidgetItem('白月黑羽'))
+```
+
+如果单元格 `已经被设置过` 文本内容，
+
+`item` 方法可以获取指定位置的 QTableWidgetItem ，再调用这个对象的 `setText` 方法，就可以设置单元格文本内容，比如
+
+```python
+table.item(0,0).setText('白月黑羽-江老师')
+```
+
+就设置了 `第1行，第1列` 的单元格里面的文本。
+
+```python
+table.item(2,4).setText('白月黑羽-江老师')
+```
+
+就设置了 `第3行，第5列` 的单元格里面的文本。
+
+
+
+
+
+**获取单元格文本的内容**
+
+`item` 方法可以指定位置的单元格对象（QTableWidgetItem） ，再调用这个对象的 `text` 方法，就可以获取文本内容，比如
+
+```python
+table.item(0,0).text()
+```
+
+就获取了 `第1行，第1列` 的单元格里面的文本。
+
+```python
+table.item(2,4).text()
+```
+
+就获取了 `第3行，第5列` 的单元格里面的文本。
+
+
+
+
+
+**获取所有行数、列数**
+
+代码中可以使用 `rowCount` 方法来获取表格所有的 `行数` ，比如
+
+```python
+rowcount = table.rowCount()
+```
+
+
+
+可以使用 `columnCount` 方法来获取表格所有的 `列数` ，比如
+
+```python
+rowcount = table.columnCount()
+```
+
+
+
+**获取当前选中是第几行**
+
+代码中可以使用 `currentRow` 方法来获取当前选中是第几行，比如
+
+```python
+currentrow = table.currentRow()
+```
+
+注意：行数是从0开始的， 第一行的行数是 0
+
+
+
+
+
+### 7、选择文件框
+
+**选择目录**
+
+通过 `getExistingDirectory 静态方法` 选择目录。
+
+该方法，第一个参数是父窗口对象，第二个参数是选择框显示的标题。
+
+比如
+
+```python
+from PySide2.QtWidgets import QFileDialog
+
+filePath = QFileDialog.getExistingDirectory(self.ui, "选择存储路径")
+```
+
+返回值即为选择的路径字符串。
+
+如果用户点击了 选择框的 取消选择按钮，返回 空字符串。
+
+
+
+**选择单个文件**
+
+如果你想弹出文件选择框，选择一个 `已经存在` 的文件，可以使用 QFileDialog 静态方法 `getOpenFileName` ，比如
+
+```python
+from PySide2.QtWidgets import QFileDialog
+
+filePath, _  = QFileDialog.getOpenFileName(
+            self.ui,             # 父窗口对象
+            "选择你要上传的图片", # 标题
+            r"d:\\data",        # 起始目录
+            "图片类型 (*.png *.jpg *.bmp)" # 选择类型过滤项，过滤内容在括号中
+        )
+```
+
+该方法返回值 是一个元组，第一个元素是选择的文件路径，第二个元素是文件类型，如果你只想获取文件路径即可，可以采用上面的代码写法。
+
+如果用户点击了 选择框的 取消选择按钮，返回 空字符串。
+
+
+
+如果你想弹出文件选择框，选择路径和文件名，来 `保存一个文件` ，可以使用 QFileDialog 静态方法 `getSaveFileName` ，比如
+
+```python
+from PySide2.QtWidgets import QFileDialog
+
+filePath, _  = QFileDialog.getSaveFileName(
+            self.ui,             # 父窗口对象
+            "保存文件", # 标题
+            r"d:\\data",        # 起始目录
+            "json类型 (*.json)" # 选择类型过滤项，过滤内容在括号中
+        )
+```
+
+
+
+
+
+### 8、提示框
+
+错误：
+
+```python
+QMessageBox.critical(
+    self.ui,
+    '错误',
+    '请选择爬取数据存储路径！')
+```
+
+警告
+
+```python
+QMessageBox.warning(
+    self.ui,
+    '阅读太快',
+    '阅读客户协议必须超过1分钟')
+```
+
+提示
+
+```python
+QMessageBox.information(
+    self.ui,
+    '操作成功',
+    '请继续下一步操作')
+```
+
+
+
+
+
+### 9、输入对话框
+
+```python
+from PySide2.QtWidgets import QInputDialog,QLineEdit
+
+# 返回值分别是输入数据 和 是否点击了 OK 按钮（True/False）
+title, okPressed = QInputDialog.getText(
+    self, 
+    "输入目录名称",
+    "名称:",
+    QLineEdit.Normal,
+    "")
+
+if not okPressed:
+    print('你取消了输入')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 爬虫
+
+## requests
+
+![img](https://raw.githubusercontent.com/a1254898873/images/master/202206111005056.jpeg)
+
+
+
+### post 表单请求
+
+```python
+import requests, json
+
+# 带参数表单类型post请求
+data={'custname': 'woodman','custtel':'13012345678','custemail':'woodman@11.com',
+     'size':'small'}
+r = requests.post('http://httpbin.org/post', data=data)
+print('响应数据：', r.text)
+```
+
+
+
+### post json请求
+
+```python
+# json数据请求
+url = 'https://api.github.com/some/endpoint'
+payload = {'some': 'data'}
+# 可以使用json.dumps(dict) 对编码进行编译
+r = requests.post(url, data=json.dumps(payload))
+print('响应数据：', r.text)
+
+# 可以直接使用json参数传递json数据
+r = requests.post(url, json=payload)
+print('响应数据：', r.text)
+```
+
+
+
+### post提交单个文件
+
+```python
+# 上传单个文件
+url = 'http://httpbin.org/post'
+# 注意文件打开的模式，使用二进制模式不容易发生错误
+files = {'file': open('report.txt', 'rb')}
+# 也可以显式地设置文件名，文件类型和请求头
+# files = {'file': ('report.xls', open('report.xls', 'rb'), 'application/vnd.ms-excel', {'Expires': '0'})}
+r = requests.post(url, files=files)
+r.encoding = 'utf-8'
+print(r.text)
+```
+
+
+
+
+
+### 定制cookie信息
+
+```python
+# 直接以字典型时传递cookie
+url = 'http://httpbin.org/cookies'
+cookies = {"cookies_are":'working'}
+r = requests.get(url, cookies=cookies)
+# 获取响应的cookie信息，返回结果是RequestsCookieJar对象
+print(r.cookies)
+print(r.text)
+
+import requests.cookies
+# 我们也可以使用 RequestsCookieJar 对象提交cookies信息
+jar = requests.cookies.RequestsCookieJar()
+jar.set('tasty_cookie', 'yum', domain='httpbin.org', path='/cookies')
+jar.set('gross_cookie', 'blech', domain='httpbin.org', path='/elsewhere')
+url = 'http://httpbin.org/cookies'
+r = requests.get(url, cookies=jar)
+print(r.text)
+```
 
