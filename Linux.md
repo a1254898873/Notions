@@ -178,7 +178,9 @@ netstat
 
 netstat -p 可以与其它开关一起使用，就可以添加 “PID/进程名称” 到 netstat 输出中，这样 debugging 的时候可以很方便的发现特定端口运行的程序。
 
-
+```
+netstat -tlnp | grep :22
+```
 
 
 

@@ -1137,6 +1137,16 @@ DO 与 PO 的区别
 
 
 
+
+
+<img src="https://raw.githubusercontent.com/a1254898873/images/master/202207101147117.png" alt="在这里插入图片描述" style="zoom:67%;" />
+
+
+
+<img src="https://raw.githubusercontent.com/a1254898873/images/master/202207101147991.png" alt="在这里插入图片描述" style="zoom:67%;" />
+
+
+
 ## mapstruct
 
 一、配置
@@ -6083,9 +6093,276 @@ weight 越高，被分配的客户端越多，默认为 1。比如：
 
 
 
+# minIO
+
+## 安装
+
+创建目录：一个用来存放配置，一个用来存储上传文件的目录。
+
+```
+mkdir -p /data/minio/config
+mkdir -p /data/minio/data
+```
+
+
+
+```
+docker run -p 9010:9010 -p 9020:9020 \
+ --name minio \
+ -d --restart=always \
+ -e "MINIO_ACCESS_KEY=minioadmin" \
+ -e "MINIO_SECRET_KEY=minioadmin" \
+ -v /data/minio/data:/data \
+ -v /data/minio/config:/root/.minio \
+ minio/minio server \
+ /data --console-address ":9020" -address ":9010"
+```
+
+
+
+
+
+## 整合springboot
+
+要使用 MinIO 的 SDK，得导入其依赖包。为了方便操作 I/O流，我们同时导入一个工具包：
+
+```
+<!-- MinIO SDK-->
+<dependency>
+    <groupId>io.minio</groupId>
+    <artifactId>minio</artifactId>
+    <version>8.0.3</version>
+</dependency>
+<!-- I/O工具包，方便I/O操作-->
+<dependency>
+    <groupId>commons-io</groupId>
+    <artifactId>commons-io</artifactId>
+    <version>2.7</version>
+</dependency>
+```
+
+关于 MinIO 的一切操作都得通过 MinioClient 对象来进行，创建该对象的方式如下：
+
+```
+MinioClient minioClient = MinioClient.builder()
+                .endpoint("服务地址")
+                .credentials("账号", "密码")
+                .build();
+```
+
+
+
+yml配置
+
+```
+minio:
+  url: http://rudecrab.com:9000 # 服务地址
+  access: minioadmin # 账号
+  secret: minioadmin # 密码
+  bucket: file # Bucket
+
+```
+
+
+
+service类
+
+```java
+@Service
+public class MinioService {
+    Logger log = LoggerFactory.getLogger(MinioService.class);
+
+    private final String bucket;
+    private final MinioClient minioClient;
+
+    public MinioService(@Value("${minio.url}") String url,
+                        @Value("${minio.access}") String access,
+                        @Value("${minio.secret}") String secret,
+                        @Value("${minio.bucket}") String bucket) throws Exception {
+        this.bucket = bucket;
+        minioClient = MinioClient.builder()
+                .endpoint(url)
+                .credentials(access, secret)
+                .build();
+        // 初始化Bucket
+        initBucket();
+    }
+
+    private void initBucket() throws Exception {
+        // 应用启动时检测Bucket是否存在
+        boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
+        // 如果Bucket不存在，则创建Bucket
+        if (!found) {
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
+            log.info("成功创建 Bucket [{}]", bucket);
+        }
+    }
+
+    /**
+     * 上传文件
+     * @param is 输入流
+     * @param object 对象（文件）名
+     * @param contentType 文件类型
+     */
+    public void putObject(InputStream is, String object, String contentType) throws Exception {
+        long start = System.currentTimeMillis();
+        minioClient.putObject(PutObjectArgs.builder()
+                .bucket(bucket)
+                .object(object)
+                .contentType(contentType)
+                .stream(is, -1, 1024 * 1024 * 10) // 不得小于 5 Mib
+                .build());
+        log.info("成功上传文件至云端 [{}]，耗时 [{} ms]", object, System.currentTimeMillis() - start);
+    }
+
+    /**
+     * 获取文件流
+     * @param object 对象（文件）名
+     * @return 文件流
+     */
+    public GetObjectResponse getObject(String object) throws Exception {
+        long start = System.currentTimeMillis();
+        GetObjectResponse response = minioClient.getObject(GetObjectArgs.builder()
+                .bucket(bucket)
+                .object(object)
+                .build());
+        log.info("成功获取 Object [{}]，耗时 [{} ms]", object, System.currentTimeMillis() - start);
+        return response;
+    }
+
+    /**
+     * 删除对象（文件）
+     * @param object 对象（文件名）
+     */
+    public void removeObject(String object) throws Exception {
+        minioClient.removeObject(RemoveObjectArgs.builder()
+                .bucket(bucket)
+                .object(object)
+                .build());
+        log.info("成功删除 Object [{}]", object);
+    }
+}
+```
+
+
+
+
+
+控制器：
+
+```java
+@RestController
+@RequestMapping("/file")
+public class FileController {
+    @Autowired
+    private MinioService minioService;
+
+    // 上传，上传成功会返回文件名
+    @PostMapping
+    public String upload(MultipartFile file) throws Exception {
+        // 获取文件后缀名
+        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+        // 为了避免文件名重复，使用UUID重命名文件，将横杠去掉
+        String fileName = UUID.randomUUID().toString().replace("-", "") + "." + extension;
+        // 上传
+        minioService.putObject(file.getInputStream(), fileName, file.getContentType());
+        // 返回文件名
+        return fileName;
+    }
+ 
+    // 根据文件名下载文件
+    @GetMapping("{fileName}")
+    public void download(HttpServletRequest request, HttpServletResponse response, @PathVariable("fileName") String fileName) throws Exception  {
+        // 设置响应类型
+        response.setCharacterEncoding(request.getCharacterEncoding());
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+        // 获取文件流
+        GetObjectResponse objectResponse = minioService.getObject(fileName);
+        // 将文件流输出到响应流
+        IOUtils.copy(objectResponse, response.getOutputStream());
+        // 结束
+        response.flushBuffer();
+        objectResponse.close();
+    }
+ 
+    // 根据文件名删除文件
+    @DeleteMapping("{fileName}")
+    public String remove(@PathVariable("fileName") String fileName) throws Exception  {
+        minioService.removeObject(fileName);
+        return "success";
+    }
+}
+```
+
+
+
+
+
+```java
+public enum ViewContentType {
+    DEFAULT("default","application/octet-stream"),
+    JPG("jpg", "image/jpeg"),
+    TIFF("tiff", "image/tiff"),
+    GIF("gif", "image/gif"),
+    JFIF("jfif", "image/jpeg"),
+    PNG("png", "image/png"),
+    TIF("tif", "image/tiff"),
+    ICO("ico", "image/x-icon"),
+    JPEG("jpeg", "image/jpeg"),
+    WBMP("wbmp", "image/vnd.wap.wbmp"),
+    FAX("fax", "image/fax"),
+    NET("net", "image/pnetvue"),
+    JPE("jpe", "image/jpeg"),
+    RP("rp", "image/vnd.rn-realpix");
+
+    private String prefix;
+
+    private String type;
+
+    public static String getContentType(String prefix){
+        if(StrUtil.isEmpty(prefix)){
+            return DEFAULT.getType();
+        }
+        prefix = prefix.substring(prefix.lastIndexOf(".") + 1);
+        for (ViewContentType value : ViewContentType.values()) {
+            if(prefix.equalsIgnoreCase(value.getPrefix())){
+                return value.getType();
+            }
+        }
+        return DEFAULT.getType();
+    }
+
+    ViewContentType(String prefix, String type) {
+        this.prefix = prefix;
+        this.type = type;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public String getType() {
+        return type;
+    }
+}
+```
+
+
+
+
+
 
 
 # Docker
+
+## ubuntu安装docker
+
+```
+sudo apt-get install docker.io
+```
+
+
 
 ## 基本命令
 

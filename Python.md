@@ -1593,3 +1593,354 @@ r = requests.get(url, cookies=jar)
 print(r.text)
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Flask
+
+## 路由
+
+### Flask 变量规则
+
+通过向规则参数添加变量部分，可以动态构建URL。
+
+此变量部分标记为<variable-name> 。
+
+它作为关键字参数传递给与规则相关联的函数。
+
+```python
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/hello/<name>')
+def hello_name(name):
+   return 'Hello %s!' % name
+
+if __name__ == '__main__':
+   app.run(debug = True)
+```
+
+```python
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/blog/<int:postID>')
+def show_blog(postID):
+   return 'Blog Number %d' % postID
+
+@app.route('/rev/<float:revNo>')
+def revision(revNo):
+   return 'Revision Number %f' % revNo
+
+if __name__ == '__main__':
+   app.run()
+```
+
+
+
+
+
+### HTTP方法
+
+```python
+from flask import Flask, redirect, url_for, request
+app = Flask(__name__)
+
+@app.route('/success/<name>')
+def success(name):
+   return 'welcome %s' % name
+
+@app.route('/login',methods = ['POST', 'GET'])
+def login():
+   if request.method == 'POST':
+      user = request.form['nm']
+      return redirect(url_for('success',name = user))
+   else:
+      user = request.args.get('nm')
+      return redirect(url_for('success',name = user))
+
+if __name__ == '__main__':
+   app.run(debug = True)
+```
+
+
+
+
+
+## 异常处理
+
+```python
+@app.errorhandler(404)
+def not_found(e):
+    return '没找到', 404
+```
+
+
+
+
+
+
+
+## 模板
+
+- `{% ... %}` 包含的代码是可以被执行的语句，比如循环语句，继承语法；
+- `{{ ... }}` 包含的是 Python 对象，用于解析出这些对象的值，经常用于打印内容；
+- `{# ... #}` 用于添加注释，这些注释不会被处理，但是也不会输出到 HTML 源码中；
+
+
+
+
+
+**选择：**
+
+```
+{% if title %}
+     <title> {{ title }}</title>
+      {% else %}
+     <title> no title </title>
+ {% endif %}
+```
+
+
+
+**循环：**
+
+```
+<ul>
+    {% for item in item_list %}
+        <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+```
+
+
+
+
+
+
+
+## 蓝图
+
+1、创建蓝图对象
+
+```python
+# 这里的两个参数为必选，至于为什么，稍后解释
+admin = Blueprint('admin',__name__)
+```
+
+
+
+2、使用蓝图对象注册路由
+
+```python
+@admin.route('/')
+def admin_home():
+    pass
+```
+
+
+
+3、将蓝图注册到app上
+
+```python
+app.register_blueprint(admin)
+```
+
+
+
+## SQLAlchemy
+
+### 1、配置
+
+操作数据库需要先创建一个db对象，通常写在`exts.py`文件里。
+
+```python
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+```
+
+flask项目一般将数据库配置写入configs.py文件里面，配置在创建引擎前需写好，不要在程序运行时修改配置，如下。
+
+```python
+HOST = '127.0.0.1'
+PORT = '3306'
+DATABASE = 'flask1'
+USERNAME = 'root'
+PASSWORD = '123456'
+
+DB_URI = "mysql+pymysql://{username}:{password}@{host}:{port}/{db}?charset=utf8".format(username=USERNAME,password=PASSWORD, host=HOST,port=PORT, db=DATABASE)
+
+SQLALCHEMY_DATABASE_URI = DB_URI
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+SQLALCHEMY_ECHO = True
+```
+
+写完数据库配置后需要和app绑定，app.py文件里写flask应用的创建和蓝图的注册等等，如下：
+
+```python
+from flask import Flask
+import configs
+from exts import db
+
+app = Flask(__name__)
+# 加载配置文件
+app.config.from_object(configs)
+# db绑定app
+db.init_app(app)
+```
+
+
+
+### 2、表的创建
+
+| 数据类型    | 说明                                     |
+| ----------- | ---------------------------------------- |
+| Integer     | 整型                                     |
+| String      | 字符串                                   |
+| Text        | 文本                                     |
+| DateTime    | 日期                                     |
+| Float       | 浮点型                                   |
+| Boolean     | 布尔值                                   |
+| PickleType  | 存储一个序列化（ Pickle ）后的Python对象 |
+| LargeBinary | 巨长度二进制数据                         |
+
+
+
+```python
+# 建表写在models.py文件里面
+from ext import db
+
+"""
+以下表关系：
+一个用户对应多篇文章（一对多）
+一篇文章对应多个标签，一个标签对应多个文章（多对多）
+"""
+"""
+一对一关系中，需要设置relationship中的uselist=Flase，其他数据库操作一样。
+一对多关系中，外键设置在多的一方中，关系（relationship）可设置在任意一方。
+多对多关系中，需建立关系表，设置 secondary=关系表
+"""
+
+# 用户表
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(50))
+    email = db.Column(db.String(50))
+
+# 关系表（多对多）
+article_tag_table = db.Table('article_tag',
+                             db.Column('article_id', db.Integer, db.ForeignKey('article.id'), primary_key=True),
+                             db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True))
+
+# 文章表
+class Article(db.Model):
+    __tablename__ = 'article'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(100))
+    content = db.Column(db.Text)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    author = db.relationship("User", backref="articles")
+    tags = db.relationship("Tag", secondary=article_tag_table, backref='tags')
+
+# 标签表
+class Tag(db.Model):
+    __tablename__ = 'tag'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(50))
+```
+
+
+
+### 3、表的映射
+
+常用命令：
+1、初始化环境：python manager.py db init
+2、自动检测模型，生成迁移脚本：python manager.py db migrate
+3、将迁移脚本映射到数据库中：python manager.py db upgrade
+4、查看更多命令：python manager.py db --help
+
+创建好表后需要映射到数据库中，这里需要用到flask-migrate库。下面是启动文件manage.py。
+
+```python
+from flask_script import Manager, Server
+from app import app
+from flask_migrate import Migrate, MigrateCommand
+from ext import db
+from first import models # 模型文件必须导入进来，否则运行报错
+
+manager = Manager(app)
+Migrate(app=app, db=db)
+manager.add_command('db', MigrateCommand) # 创建数据库映射命令
+manager.add_command('start', Server(port=8000, use_debugger=True)) # 创建启动命令
+
+if __name__ == '__main__':
+    manager.run()
+```
+
+配置好启动文件后，进入项目根目录，在命令行输入以下代码：
+
+```
+>python manage.py db init
+>python manage.py db migrate
+>python manage.py db upgrade
+```
+
+
+
+
+
+### 4、表的增删查改
+
+```python
+# 原生sql语句操作
+sql = 'select * from user'
+result = db.session.execute(sql)
+
+# 查询全部
+User.query.all()
+# 主键查询
+User.query.get(1)
+# 条件查询
+User.query.filter_by(User.username='name')
+# 多条件查询
+from sqlalchemy import and_
+User.query.filter_by(and_(User.username =='name',User.password=='passwd'))
+# 比较查询
+User.query.filter(User.id.__lt__(5)) # 小于5
+User.query.filter(User.id.__le__(5)) # 小于等于5
+User.query.filter(User.id.__gt__(5)) # 大于5
+User.query.filter(User.id.__ge__(5)) # 大于等于5
+# in查询
+User.query.filter(User.username.in_('A','B','C','D'))
+# 排序
+User.query.order_by('age') # 按年龄排序，默认升序，在前面加-号为降序'-age'
+# 限制查询
+User.query.filter(age=18).offset(2).limit(3)  # 跳过二条开始查询，限制输出3条
+
+# 增加
+use = User(id,username,password)
+db.session.add(use)
+db.session.commit() 
+
+# 删除
+User.query.filter_by(User.username='name').delete()
+
+# 修改
+User.query.filter_by(User.username='name').update({'password':'newdata'})
+```
+
